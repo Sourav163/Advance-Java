@@ -7,7 +7,7 @@ interface Interface0 {
 
 public class AnonymousClass {
     public static void main(String[] args) {
-        Interface0 obj = new Interface0() {
+        Interface0 obj0 = new Interface0() {
             @Override
             public void meth1() {
                 System.out.println("I am meth1()");
@@ -18,7 +18,7 @@ public class AnonymousClass {
                 System.out.println("I am meth2()");
             }
         };
-        obj.meth1();
-        obj.meth2();
+        obj0.meth1();
+        obj0.meth2();
     }
 }
