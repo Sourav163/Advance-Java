@@ -96,37 +96,11 @@ public class Exercise_07 {
 //            System.out.println((index+1) + " - " + booksName.get(index) + " (" + booksID.get(index) + ")");
 
 
-//        issuedBooksID.add(1);
-//        issuedBooksID.add(2);
-//        issuedBooksID.add(3);
-//        issuedBooksID.add(4);
-//        issuedBooksID.add(5);
-//        issuedBooksName.add("ABC1");
-//        issuedBooksName.add("ABC2");
-//        issuedBooksName.add("ABC3");
-//        issuedBooksName.add("ABC4");
-//        issuedBooksName.add("ABC5");
-
-//        issuedBooksName.remove(0);
-//        issuedBooksName.remove(1);
-//        issuedBooksName.remove(2);
-//        issuedBooksName.remove(3);
-//        issuedBooksName.remove(4);
-//        issuedBooksID.remove(0);
-//        issuedBooksID.remove(1);
-//        issuedBooksID.remove(2);
-//        issuedBooksID.remove(3);
-//        issuedBooksID.remove(4);
-
         System.out.println(issuedBooksID);
         System.out.println(issuedBooksName);
 
 //        for(int i = 0; i < issuedBooksID.size(); i++)
 //            statement.executeUpdate("insert into issuedbooks values (" + issuedBooksID.get(i) + ", '" + issuedBooksName.get(i) + "');");
-
-//        statement.executeUpdate("ALTER TABLE issuedbooks DROP Book_ID");
-        statement.executeUpdate("ALTER TABLE issuedbooks DROP Book_Name");
-
 
         connection.close();
     }
