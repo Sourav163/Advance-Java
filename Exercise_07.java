@@ -114,11 +114,13 @@ public class Exercise_07 {
                 System.out.print("Enter the book name :  ");
                 returnIssuedBookName.add(sc.nextLine());
             }
-            for(int i = 1; i <= numberOfBooksToReturn; i++) {
-                System.out.print("Enter the ID of Book-" + i + " :  ");
-                returnIssuedBookID.add(sc.nextInt());
-                System.out.print("Enter the Name of Book-" + i + " :  ");
-                returnIssuedBookName.add(sc.nextLine());
+            else {
+                for(int i = 1; i <= numberOfBooksToReturn; i++) {
+                    System.out.print("Enter the ID of Book-" + i + " :  ");
+                    returnIssuedBookID.add(sc.nextInt());
+                    System.out.print("Enter the Name of Book-" + i + " :  ");
+                    returnIssuedBookName.add(sc.nextLine());
+                }
             }
         }
     }
@@ -156,6 +158,9 @@ public class Exercise_07 {
                         statement.executeUpdate("insert into books (Book_ID, Book_Name) values (" + booksID.get(i) + ", '" + booksName.get(i) + "');");
                     }
                 }
+            case 3:
+                issueBooks();
+                addIssuedBooksToTable(statement);
         }
 
 
