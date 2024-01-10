@@ -161,9 +161,6 @@ public class Exercise_07 {
             case 3:
                 issueBooks();
                 addIssuedBooksToTable(statement);
-            case 4:
-                returnIssuedBooks();
-                removeIssuedBooksFromTable(statement);
         }
 
 
