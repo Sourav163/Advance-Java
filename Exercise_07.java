@@ -15,42 +15,55 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Scanner;
 
 public class Exercise_07 {
-    public static ArrayList<String> booksName = new ArrayList<>();
     public static ArrayList<Integer> booksID = new ArrayList<>();
+    public static ArrayList<String> booksName = new ArrayList<>();
+    public static ArrayList<String> booksAuthor = new ArrayList<>();
     public static ArrayList<String> issuedBooksName = new ArrayList<>();
     public static ArrayList<Integer> issuedBooksID = new ArrayList<>();
 
     public static ArrayList<Integer> returnIssuedBookID = new ArrayList<>();
-    public static ArrayList<String> returnIssuedBookName = new ArrayList<>();
+    public static ArrayList<String> returnIssuedBooksName = new ArrayList<>();
 
     public static int totalNumberOfBooks = 0;
 
-    public static void showBooks(Statement statement) throws Exception {
+    public static void showBooks() {
         System.out.println("\nSl_no. - Book_Name (Book_ID)\n");
         for(int index = 0; index < booksID.size(); index++)
             System.out.println((index+1) + " - " + booksName.get(index) + " (" + booksID.get(index) + ")");
     }
 
     public static void addIssuedBooksToTable(Statement statement) throws Exception {
-        for(int i = 0; i < issuedBooksID.size(); i++)
+        for(int i = 0; i < issuedBooksID.size(); i++) {
             statement.executeUpdate("insert into issuedbooks values (" + issuedBooksID.get(i) + ", '" + issuedBooksName.get(i) + "');");
+//            statement.executeUpdate("insert into books (Issued_To, Issued_On) values ('" + ", '" + "')");
+        }
     }
 
     public static void removeIssuedBooksFromTable(Statement statement) throws Exception {
         for(int i = 0; i < issuedBooksID.size(); i++) {
             for(int j = 0; j < returnIssuedBookID.size(); j++) {
-                if (issuedBooksID.get(i).equals(returnIssuedBookID.get(j))) {
-                    if (returnIssuedBookName.get(j).equalsIgnoreCase(issuedBooksName.get(i))) {
-                        statement.executeUpdate("DELETE FROM issuedbooks WHERE Book_ID = " + returnIssuedBookID);
+                if(issuedBooksID.get(i).equals(returnIssuedBookID.get(j))) {
+                    if(returnIssuedBooksName.get(j).equalsIgnoreCase(issuedBooksName.get(i))) {
+                        statement.executeUpdate("delete from issuedbooks where Book_ID = " + returnIssuedBookID.get(j));
                         issuedBooksID.remove(i);
                         issuedBooksName.remove(i);
-                    } else {
+//                        for(int k = 0; k < booksID.size(); k++) {
+//                            if(returnIssuedBookID.get(j).equals(booksID.get(k))) {
+//                                statement.executeUpdate("update books set Issued_On = NULL where Book_ID = " + booksID.get(k) + ";");
+//                                statement.executeUpdate("update books set Issued_To = NULL where Book_ID = " + booksID.get(k) + ";");
+//                                break;
+//                            }
+//                        }
+                    }
+                    else {
                         System.out.println("You have entered wrong issued book name for BookID - " + issuedBooksID.get(i));
                     }
                     break;
@@ -64,19 +77,25 @@ public class Exercise_07 {
         System.out.print("How many books do you want to add :  ");
         int numberOfBooksToAdd = sc.nextInt();
         for(int i = 1; i <= numberOfBooksToAdd; i++) {
-            if (numberOfBooksToAdd == 1)
+            if (numberOfBooksToAdd == 1) {
                 System.out.print("Enter the book name :  ");
+            }
             else
                 System.out.print("Enter the book-" + i + " name :  ");
+            if(i == 1)
+                sc.nextLine();
             String book = sc.nextLine();
             booksName.add(book);
-            System.out.println("\"" + book + "\" Added.");
+            System.out.print("Enter the author name :  ");
+            String author = sc.nextLine();
+            booksAuthor.add(author);
+            System.out.println("\"" + book + "\" by '" + author + "' Book Added.");
             booksID.add(booksID.size() + 1);
 //            totalNumberOfBooks += 1;
         }
     }
 
-    public static void issueBooks() {
+    public static void issueBooks(Statement statement) throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.print("How many books do you want to issue (max. 3 nos.) :  ");
         int numberOfBooksToIssue = sc.nextInt();
@@ -84,43 +103,56 @@ public class Exercise_07 {
             System.out.println("Sorry, You can't issue more than 3 books.");
         else {
             for(int i = 1; i <= numberOfBooksToIssue; i++) {
+                int issuedBookID;
                 if (numberOfBooksToIssue == 1) {
                     System.out.print("Enter the book ID :  ");
-                    issuedBooksID.add(sc.nextInt());
+                    issuedBookID = sc.nextInt();
+                    issuedBooksID.add(issuedBookID);
                     System.out.print("Enter the book name :  ");
-                    issuedBooksName.add(sc.nextLine());
                 }
                 else {
                     System.out.print("Enter the book-" + i + " ID :  ");
-                    issuedBooksID.add(sc.nextInt());
+                    issuedBookID = sc.nextInt();
+                    issuedBooksID.add(issuedBookID);
                     System.out.print("Enter the book-" + i + " name :  ");
-                    issuedBooksName.add(sc.nextLine());
                 }
-                booksName.remove(sc.nextLine());
+                if(i == 1)
+                    sc.nextLine();
+                String issuedBookName = sc.nextLine();
+                issuedBooksName.add(issuedBookName);
+                statement.executeUpdate("update books" + " set Issued_On = '" + LocalDateTime.now() + "' where Book_ID = " + issuedBookID + ";");
+                System.out.println(issuedBookName + " Book Issued.");
             }
         }
     }
 
-    public static void returnIssuedBooks() {
+    public static void returnIssuedBooks(Statement statement) throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.print("How many books do you want to return (max. 3 nos.) :  ");
         int numberOfBooksToReturn = sc.nextInt();
         if(numberOfBooksToReturn > 3)
             System.out.println("Sorry, You can't return more than 3 books.");
         else {
-            if (numberOfBooksToReturn == 1) {
-                System.out.print("Enter the book ID :  ");
-                returnIssuedBookID.add(sc.nextInt());
-                System.out.print("Enter the book name :  ");
-                returnIssuedBookName.add(sc.nextLine());
-            }
-            else {
-                for(int i = 1; i <= numberOfBooksToReturn; i++) {
-                    System.out.print("Enter the ID of Book-" + i + " :  ");
-                    returnIssuedBookID.add(sc.nextInt());
-                    System.out.print("Enter the Name of Book-" + i + " :  ");
-                    returnIssuedBookName.add(sc.nextLine());
+            for(int i = 1; i <= numberOfBooksToReturn; i++) {
+                int issuedBookID;
+                if (numberOfBooksToReturn == 1) {
+                    System.out.print("Enter the book ID :  ");
+                    issuedBookID = sc.nextInt();
+                    returnIssuedBookID.add(issuedBookID);
+                    System.out.print("Enter the book name :  ");
                 }
+                else {
+                    System.out.print("Enter the ID of Book-" + i + " :  ");
+                    issuedBookID = sc.nextInt();
+                    returnIssuedBookID.add(issuedBookID);
+                    System.out.print("Enter the Name of Book-" + i + " :  ");
+                }
+                if(i == 1)
+                    sc.nextLine();
+                String returnIssuedBookName = sc.nextLine();
+                returnIssuedBooksName.add(returnIssuedBookName);
+                statement.executeUpdate("update books" + " set Issued_On = NULL where Book_ID = " + issuedBookID + ";");
+                System.out.println(returnIssuedBookName + " Book Returned.");
             }
         }
     }
@@ -138,31 +170,52 @@ public class Exercise_07 {
         while (resultSet.next()) {
             booksID.add(resultSet.getInt(1));
             booksName.add(resultSet.getString(2));
+            booksAuthor.add(resultSet.getString(3));
             totalNumberOfBooks += 1;
         }
 
+        resultSet = statement.executeQuery("select * from books where Issued_On is not null order by Book_name asc");
 
-        System.out.println("\t: CHOICES :\nChoose 1 to see books\nChoose 2 to add books\nChoose 3 to issue books\nChoose 4 to return issued books\nChoose 5 to Exit");
+        while (resultSet.next()) {
+            issuedBooksID.add(resultSet.getInt(1));
+            issuedBooksName.add(resultSet.getString(2));
+        }
+
+
+        System.out.println("\t: CHOICES :\nChoose 1 to See Books\nChoose 2 to Add Books\nChoose 3 to Issue Books\nChoose 4 to Return Issued Books\nChoose 5 to Exit");
         Scanner sc = new Scanner(System.in);
         System.out.print("\nEnter your choice :  ");
         int choice = sc.nextInt();
 
         switch(choice) {
             case 1:
-                showBooks(statement);
+                showBooks();
                 break;
             case 2:
                 addBooks();
-                if(totalNumberOfBooks < booksID.size()) {
-                    for(int i = totalNumberOfBooks-1; i < booksID.size(); i++) {
-                        statement.executeUpdate("insert into books (Book_ID, Book_Name) values (" + booksID.get(i) + ", '" + booksName.get(i) + "');");
+                for (int i = totalNumberOfBooks; i < booksID.size(); i++) {
+                    if (totalNumberOfBooks < booksID.size()) {
+                        statement.executeUpdate("insert into books (Book_ID, Book_Name, Book_Author) values (" + booksID.get(i) + ", '" + booksName.get(i) + "', '" + booksAuthor.get(i) +"');");
+                        totalNumberOfBooks += 1;
+                    }
+                    else {
+                        break;
                     }
                 }
+                break;
             case 3:
-                issueBooks();
+                issueBooks(statement);
                 addIssuedBooksToTable(statement);
+                break;
+            case 4:
+                returnIssuedBooks(statement);
+                removeIssuedBooksFromTable(statement);
+                break;
+            case 5:
+                break;
+            default:
+                System.out.println("INVALID CHOICE");
         }
-
 
 //        issuedBooksID.add(1);
 //        issuedBooksID.add(2);
