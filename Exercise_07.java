@@ -11,10 +11,7 @@ package Advance_Java;
     Assume that all the users are registered with their names in the central database
 */
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -95,13 +92,31 @@ public class Exercise_07 {
         }
     }
 
-    public static void issueBooks(Statement statement) throws Exception {
+    public static void issueBooks(Statement statement, Connection connection) throws Exception {
         Scanner sc = new Scanner(System.in);
         System.out.print("How many books do you want to issue (max. 3 nos.) :  ");
         int numberOfBooksToIssue = sc.nextInt();
         if(numberOfBooksToIssue > 3)
             System.out.println("Sorry, You can't issue more than 3 books.");
         else {
+
+//            String query = "SELECT Issued_On FROM books WHERE Book_ID = ?";
+//            int conditionValue = 123;  // replace with your actual condition value
+//
+//            PreparedStatement preparedStatement = connection.prepareStatement(query);
+//            preparedStatement.setString(5, "NOT NULL");
+//
+//            ResultSet resultSet = preparedStatement.executeQuery();
+//            if (resultSet.next()) {
+//                // Retrieve the value from the specified column
+//                String retrievedData = resultSet.getString("Issued_On");
+//
+//                // Use the retrieved data as needed
+//                System.out.println("Retrieved Data: " + retrievedData);
+//            } else {
+//                System.out.println("No matching row found.");
+//            }
+
             for(int i = 1; i <= numberOfBooksToIssue; i++) {
                 int issuedBookID;
                 if (numberOfBooksToIssue == 1) {
@@ -116,12 +131,25 @@ public class Exercise_07 {
                     issuedBooksID.add(issuedBookID);
                     System.out.print("Enter the book-" + i + " name :  ");
                 }
-                if(i == 1)
-                    sc.nextLine();
+                sc.nextLine();
                 String issuedBookName = sc.nextLine();
-                issuedBooksName.add(issuedBookName);
-                statement.executeUpdate("update books" + " set Issued_On = '" + LocalDateTime.now() + "' where Book_ID = " + issuedBookID + ";");
-                System.out.println(issuedBookName + " Book Issued.");
+
+                int count = 0;
+                for(int x = 0; x < booksName.size(); x++) {
+                    if(issuedBookName.equalsIgnoreCase(booksName.get(x))) {
+                        issuedBooksName.add(issuedBookName);
+                        statement.executeUpdate("update books" + " set Issued_On = '" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy @ H:m:s")) + "' where Book_ID = " + issuedBookID + ";");
+
+                        for(int k = 0; k < issuedBooksID.size(); k++) {
+                            statement.executeUpdate("insert into issuedbooks values (" + issuedBooksID.get(k) + ", '" + issuedBooksName.get(k) + "');");
+                        }
+                        System.out.println(issuedBookName + " Book Issued.");
+                        count += 1;
+                    }
+                }
+                if(count == 0) {
+                    System.out.println("You are issuing wrong book name for BookID - " + issuedBookID);
+                }
             }
         }
     }
@@ -147,12 +175,27 @@ public class Exercise_07 {
                     returnIssuedBookID.add(issuedBookID);
                     System.out.print("Enter the Name of Book-" + i + " :  ");
                 }
-                if(i == 1)
-                    sc.nextLine();
+                sc.nextLine();
                 String returnIssuedBookName = sc.nextLine();
                 returnIssuedBooksName.add(returnIssuedBookName);
                 statement.executeUpdate("update books" + " set Issued_On = NULL where Book_ID = " + issuedBookID + ";");
-                System.out.println(returnIssuedBookName + " Book Returned.");
+
+                for(int k = 0; k < issuedBooksID.size(); k++) {
+                    for(int j = 0; j < returnIssuedBookID.size(); j++) {
+                        if(issuedBooksID.get(k).equals(returnIssuedBookID.get(j))) {
+                            if(returnIssuedBooksName.get(j).equalsIgnoreCase(issuedBooksName.get(k))) {
+                                statement.executeUpdate("delete from issuedbooks where Book_ID = " + returnIssuedBookID.get(j));
+                                issuedBooksID.remove(k);
+                                issuedBooksName.remove(k);
+                                System.out.println(returnIssuedBookName + " Book Returned.");
+                            }
+                            else {
+                                System.out.println("You have entered wrong issued book name for BookID - " + issuedBooksID.get(k));
+                            }
+                            break;
+                        }
+                    }
+                }
             }
         }
     }
@@ -204,12 +247,12 @@ public class Exercise_07 {
                 }
                 break;
             case 3:
-                issueBooks(statement);
+                issueBooks(statement, connection);
                 addIssuedBooksToTable(statement);
                 break;
             case 4:
                 returnIssuedBooks(statement);
-                removeIssuedBooksFromTable(statement);
+//                removeIssuedBooksFromTable(statement);
                 break;
             case 5:
                 break;
